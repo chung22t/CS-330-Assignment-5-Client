@@ -1,7 +1,21 @@
 # CS-330-Assignment-5-Client
 This is the program code for the client side of a socket
 
+/*
+The goal of this assignment is socket communication between a server and a client.
+   This program is to resemble a jeopardy game. A client will connect to the server (game master). The client will get to pick
+   what category and what difficulty (harder questions reward nore points). The player will only have 3 lives. that is if they make 
+   more than 3 mistakes, it is game over.
+   
+   
+Mar. 23
+-included information about the game -server will ask client (player) for category and what difficulty 
+-client messages for category & difficulty received by server
 
+next step is to continue this process for the other categories and begin writing the questions of the game. */
+
+
+/* The following is the code for the client */
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
