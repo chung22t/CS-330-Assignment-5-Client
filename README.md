@@ -11,8 +11,12 @@ The goal of this assignment is socket communication between a server and a clien
 Mar. 23
 -included information about the game -server will ask client (player) for category and what difficulty 
 -client messages for category & difficulty received by server
-
 next step is to continue this process for the other categories and begin writing the questions of the game. */
+
+Mar. 30
+-server begins asking questions for client
+-client begins responding to questions
+-current challenge is trying to get the server and client to keep continuing to play the game or exit if the client requests to.
 
 
 /* The following is the code for the client */
@@ -21,17 +25,26 @@ next step is to continue this process for the other categories and begin writing
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <iostream>
+#include <vector>
+using namespace std;
 #define PORT 8080
 
 int main(int argc, char const *argv[])
 {
+    const int MsgLen = 100; //length of message
     int sock = 0, valread;
+    char  client_category; //game category
     struct sockaddr_in serv_addr;
     char *hello = "Hello from client";
-
-    char *client_category;
-
     char buffer[1024] = {0};
+    char AnswerBuffer[MsgLen];
+    int difficulty;
+    int quit;
+   // vector<char> answer(MsgLen);
+    string answer;
+    int QuitBuffer[MsgLen] = {0};
+
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
@@ -58,8 +71,42 @@ int main(int argc, char const *argv[])
     valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
 
-    //server asks client what category they would like to play
+    cin >> client_category;
+    send(sock, &client_category, 1, 0);
 
+   /* valread = read (sock, buffer, 1024);
+    printf("%s\n", buffer);*/
+
+    if (client_category == 's')  //if client picks science category
+  {
+    //clear buffer and display difficulty message for client
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);
+    cout << buffer << endl;
+
+    // send difficulty level to server
+    cin >> difficulty;
+    send (sock, &difficulty, MsgLen, 0);
+
+    //receive first question from server
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);
+    cout << buffer << endl;  //display question to client
+    //cin >> answer;
+    cin >> AnswerBuffer;
+
+    //send answer to server
+    send(sock, AnswerBuffer, sizeof(AnswerBuffer), 0);
+
+   /* memset(AnswerBuffer, 0, MsgLen);
+    recv(sock, AnswerBuffer, MsgLen, 0);  //receive quit message
+    cout << AnswerBuffer << endl;  //display quit message
+   */
+    cout << "Quit?" << endl;
+    cin >> quit;
+    send(sock, &quit, MsgLen, 0); //send quit response
+
+  }
 
     return 0;
 }
