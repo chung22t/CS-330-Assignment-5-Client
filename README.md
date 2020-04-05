@@ -18,8 +18,16 @@ Mar. 30
 -client begins responding to questions
 -current challenge is trying to get the server and client to keep continuing to play the game or exit if the client requests to.
 
+Apr. 5
+-Server has asked client a category of questions.
+-Server will ask client to select one of two categories (science or history).
+-I am planning to add a couple more categories such as math and/or geography.
+-Server will ask client for category and difficulty level. Then server will ask client quesiton.
+-Server will send message to client if they are correct or incorrrect.
+-Current issue right now is to get game to keep looping until client run out of lives
 
-/* The following is the code for the client */
+
+/************************Client Code**********************************************/
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -39,11 +47,13 @@ int main(int argc, char const *argv[])
     char *hello = "Hello from client";
     char buffer[1024] = {0};
     char AnswerBuffer[MsgLen];
-    int difficulty;
+    char  difficulty;
     int quit;
-   // vector<char> answer(MsgLen);
-    string answer;
+    char answer;
+    int LIVES = 3;
+
     int QuitBuffer[MsgLen] = {0};
+    char NEWBUFF[1024] = {0};
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -66,8 +76,13 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n");
         return -1;
     }
+
     send(sock , hello , strlen(hello) , 0 );
     printf("Hello message sent\n");
+
+  while (LIVES >= 0)
+ {
+    memset(buffer, 0, 1024);
     valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
 
@@ -77,6 +92,8 @@ int main(int argc, char const *argv[])
    /* valread = read (sock, buffer, 1024);
     printf("%s\n", buffer);*/
 
+
+  /********************************Science***********************************/
     if (client_category == 's')  //if client picks science category
   {
     //clear buffer and display difficulty message for client
@@ -86,28 +103,158 @@ int main(int argc, char const *argv[])
 
     // send difficulty level to server
     cin >> difficulty;
-    send (sock, &difficulty, MsgLen, 0);
+    send (sock, &difficulty, 1, 0);
 
-    //receive first question from server
+    if (difficulty == 'a')  //if client selects difficulty a)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'c')  //if correct
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+   else if (difficulty == 'b')   //if client selects difficulty b)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'a')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+   else if (difficulty == 'c')  //if client selects difficulty c)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'b')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+ }
+  /*****************************History*******************************/
+ else if (client_category == 'h')  //if client picks history category
+  {
+    //clear buffer and display difficulty message for client
     memset(buffer, 0, 1024);
     recv(sock, buffer, MsgLen, 0);
-    cout << buffer << endl;  //display question to client
-    //cin >> answer;
-    cin >> AnswerBuffer;
+    cout << buffer << endl;
 
-    //send answer to server
-    send(sock, AnswerBuffer, sizeof(AnswerBuffer), 0);
+    // send difficulty level to server
+    cin >> difficulty;
+    send (sock, &difficulty, 1, 0);
 
-   /* memset(AnswerBuffer, 0, MsgLen);
-    recv(sock, AnswerBuffer, MsgLen, 0);  //receive quit message
-    cout << AnswerBuffer << endl;  //display quit message
-   */
-    cout << "Quit?" << endl;
-    cin >> quit;
-    send(sock, &quit, MsgLen, 0); //send quit response
+    if (difficulty == 'a')  //if client selects difficulty a)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'b')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+   else if (difficulty == 'b')   //if client selects difficulty b)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'c')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+   else if (difficulty == 'c')  //if client selects difficulty c)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'a')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+ }
 
   }
-
+//}
     return 0;
 }
+
 
