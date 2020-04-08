@@ -26,8 +26,16 @@ Apr. 5
 -Server will send message to client if they are correct or incorrrect.
 -Current issue right now is to get game to keep looping until client run out of lives
 
+Apr 7
+-New category (geography) has been included in the game.
+-a loop has been created so client and keep playing game until they run out of lives.
+-Current issue is trying to get the game to exit. Once client answers question wrong, the game on client side is in
+ infinite loop even if a condition was placed on loop.
+
+
 
 /************************Client Code**********************************************/
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -55,6 +63,8 @@ int main(int argc, char const *argv[])
     int QuitBuffer[MsgLen] = {0};
     char NEWBUFF[1024] = {0};
 
+   for(;;)
+  {
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
@@ -80,8 +90,8 @@ int main(int argc, char const *argv[])
     send(sock , hello , strlen(hello) , 0 );
     printf("Hello message sent\n");
 
-  while (LIVES >= 0)
- {
+/*  while (LIVES >= 0)
+ {*/
     memset(buffer, 0, 1024);
     valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
@@ -251,10 +261,100 @@ int main(int argc, char const *argv[])
     }
    }
  }
+ /***********************************Geography******************************/
+ else if (client_category == 'g')
+ {
+  //clear buffer and display difficulty message for client
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);
+    cout << buffer << endl;
 
+    // send difficulty level to server
+    cin >> difficulty;
+    send (sock, &difficulty, 1, 0);
+
+    if (difficulty == 'a')  //if client selects difficulty a)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'b')  //answer is correct
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+   else if (difficulty == 'b')   //if client selects difficulty b)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'a')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+   else if (difficulty == 'c')  //if client selects difficulty c)
+   {
+    memset(buffer, 0, 1024);
+    recv(sock, buffer, MsgLen, 0);  //server sends question to client
+    cout << buffer << endl;
+    cin >> answer;  //client answers question
+    send (sock, &answer, 1, 0); //sends answer to server
+
+    if (answer == 'c')
+    {
+      memset(buffer, 0, 1024);
+      recv(sock, buffer, MsgLen, 0);
+      cout << buffer << endl;
+    }
+    else
+    {
+     LIVES--;
+     memset(buffer, 0, 1024);
+     recv(sock, buffer, MsgLen, 0);
+     cout << buffer << endl;
+    }
+   }
+  else
+  {
+    cout << "Incorrect input!" << endl;
+    return 1;
   }
+ } //end of if statement
+
+ if (LIVES <= 0)
+ {
+   cout << "You ran out of lives" << endl;
+   return 1;
+ }
+}
+
+close (sock);
 //}
     return 0;
 }
-
 
